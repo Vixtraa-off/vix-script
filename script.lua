@@ -1,103 +1,156 @@
+-- Charger Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- Créer la fenêtre principale
 local Window = Rayfield:CreateWindow({
-    Name = "Rayfield Example Window",
-    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-    LoadingTitle = "Rayfield Interface Suite",
-    LoadingSubtitle = "by Sirius",
-    Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
- 
+    Name = "Menu Éducatif - Utilitaires",
+    Icon = 0,
+    LoadingTitle = "Chargement du Menu...",
+    LoadingSubtitle = "Par Sirius",
+    Theme = "Default",
     DisableRayfieldPrompts = false,
-    DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
- 
     ConfigurationSaving = {
        Enabled = true,
-       FolderName = nil, -- Create a custom folder for your hub/game
-       FileName = "Big Hub"
+       FolderName = nil,
+       FileName = "Utilitaires"
     },
- 
     Discord = {
-       Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-       Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+       Enabled = false,
+       Invite = "",
+       RememberJoins = true
     },
- 
-    KeySystem = false, -- Set this to true to use our key system
-    KeySettings = {
-       Title = "Untitled",
-       Subtitle = "Key System",
-       Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-       FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-       Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-    }
- })
+    KeySystem = false
+})
 
- local Tab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
+-- Créer l'onglet Utilitaires
+local Tab = Window:CreateTab("Utilitaires", 4483362458)
 
- local Tab = Window:CreateTab("Tab Example", "rewind")
+-- Variables pour Fly et Noclip
+local flying = false
+local noclipping = false
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+local bodyGyro, bodyVelocity
 
- local Section = Tab:CreateSection("Section Example")
+-- Fonction pour activer Fly
+local function fly(speed)
+    if not flying then
+        flying = true
+        bodyGyro = Instance.new("BodyGyro")
+        bodyVelocity = Instance.new("BodyVelocity")
+        
+        bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+        bodyGyro.CFrame = humanoidRootPart.CFrame
+        bodyGyro.Parent = humanoidRootPart
+        
+        bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+        bodyVelocity.Velocity = Vector3.new(0, speed, 0)
+        bodyVelocity.Parent = humanoidRootPart
+        
+        Rayfield:Notify({
+            Title = "Fly Activé",
+            Content = "Vous pouvez maintenant voler.",
+            Duration = 5
+        })
+    else
+        Rayfield:Notify({
+            Title = "Fly déjà actif",
+            Content = "Désactivez d'abord Fly avant de le réactiver.",
+            Duration = 5
+        })
+    end
+end
 
- local Divider = Tab:CreateDivider()
+-- Fonction pour désactiver Fly
+local function unfly()
+    if flying then
+        flying = false
+        if bodyGyro then bodyGyro:Destroy() end
+        if bodyVelocity then bodyVelocity:Destroy() end
+        
+        Rayfield:Notify({
+            Title = "Fly Désactivé",
+            Content = "Le vol a été désactivé.",
+            Duration = 5
+        })
+    else
+        Rayfield:Notify({
+            Title = "Fly Inactif",
+            Content = "Fly est déjà désactivé.",
+            Duration = 5
+        })
+    end
+end
 
- Rayfield:Notify({
-    Title = "Notification Title",
-    Content = "Notification Content",
-    Duration = 6.5,
-    Image = 4483362458,
- })
+-- Fonction pour activer Noclip
+local function noclip()
+    if not noclipping then
+        noclipping = true
+        humanoidRootPart.CanCollide = false
+        Rayfield:Notify({
+            Title = "Noclip Activé",
+            Content = "Vous pouvez maintenant traverser les objets.",
+            Duration = 5
+        })
+    else
+        Rayfield:Notify({
+            Title = "Noclip déjà actif",
+            Content = "Désactivez d'abord Noclip avant de le réactiver.",
+            Duration = 5
+        })
+    end
+end
 
- local Button = Tab:CreateButton({
-    Name = "Button Example",
-    Callback = function()
-    -- The function that takes place when the button is pressed
-    end,
- })
+-- Fonction pour désactiver Noclip
+local function unnoclip()
+    if noclipping then
+        noclipping = false
+        humanoidRootPart.CanCollide = true
+        Rayfield:Notify({
+            Title = "Noclip Désactivé",
+            Content = "Vous ne pouvez plus traverser les objets.",
+            Duration = 5
+        })
+    else
+        Rayfield:Notify({
+            Title = "Noclip Inactif",
+            Content = "Noclip est déjà désactivé.",
+            Duration = 5
+        })
+    end
+end
 
- local Toggle = Tab:CreateToggle({
-    Name = "Toggle Example",
-    CurrentValue = false,
-    Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Value)
-    -- The function that takes place when the toggle is pressed
-    -- The variable (Value) is a boolean on whether the toggle is true or false
-    end,
- })
-
- local Slider = Tab:CreateSlider({
-    Name = "Slider Example",
+-- Ajouter le slider Fly et Unfly
+Tab:CreateSlider({
+    Name = "Fly (Vitesse)",
     Range = {0, 100},
     Increment = 10,
-    Suffix = "Bananas",
-    CurrentValue = 10,
-    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+    Suffix = "vitesse",
+    CurrentValue = 0,
+    Flag = "FlySlider",
     Callback = function(Value)
-    -- The function that takes place when the slider changes
-    -- The variable (Value) is a number which correlates to the value the slider is currently at
+        if Value > 0 then
+            fly(Value)
+        else
+            unfly()
+        end
     end,
- })
+})
 
- local Input = Tab:CreateInput({
-    Name = "Input Example",
-    CurrentValue = "",
-    PlaceholderText = "Input Placeholder",
-    RemoveTextAfterFocusLost = false,
-    Flag = "Input1",
-    Callback = function(Text)
-    -- The function that takes place when the input is changed
-    -- The variable (Text) is a string for the value in the text box
+-- Ajouter le slider Noclip et Unnoclip
+Tab:CreateSlider({
+    Name = "Noclip",
+    Range = {0, 1},
+    Increment = 1,
+    Suffix = "On/Off",
+    CurrentValue = 0,
+    Flag = "NoclipSlider",
+    Callback = function(Value)
+        if Value == 1 then
+            noclip()
+        else
+            unnoclip()
+        end
     end,
- })
-
- local Keybind = Tab:CreateKeybind({
-    Name = "Keybind Example",
-    CurrentKeybind = "K",
-    HoldToInteract = false,
-    Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Keybind)
-    -- The function that takes place when the keybind is pressed
-    -- The variable (Keybind) is a boolean for whether the keybind is being held or not (HoldToInteract needs to be true)
-    end,
- })
+})
