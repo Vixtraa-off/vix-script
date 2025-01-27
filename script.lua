@@ -25,7 +25,7 @@ local Window = Rayfield:CreateWindow({
 -- Créer l'onglet Utilitaires
 local Tab = Window:CreateTab("Utilitaires", 4483362458)
 
--- Variables
+-- Variables pour Fly et Noclip
 local flying = false
 local noclipping = false
 local player = game.Players.LocalPlayer
@@ -33,25 +33,47 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 local camera = workspace.CurrentCamera
 local flySpeed = 50
-local connection
+local flyConnection
+local noclipConnection
 
--- Fonction pour Fly
+-- Fonction pour activer/désactiver Fly
 local function toggleFly()
     if not flying then
         flying = true
-        humanoidRootPart.Anchored = false
-        humanoidRootPart.CanCollide = false
 
-        connection = game:GetService("RunService").RenderStepped:Connect(function()
-            local direction = Vector3.new()
-            local move = player:GetMouse().KeyDown
+        local bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
+        local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
+        bodyGyro.MaxTorque = Vector3.new(9e4, 9e4, 9e4)
+        bodyGyro.CFrame = humanoidRootPart.CFrame
+        bodyVelocity.MaxForce = Vector3.new(9e4, 9e4, 9e4)
+        bodyVelocity.Velocity = Vector3.zero
 
-            if move == "w" then direction += camera.CFrame.LookVector end
-            if move == "s" then direction -= camera.CFrame.LookVector end
-            if move == "a" then direction -= camera.CFrame.RightVector end
-            if move == "d" then direction += camera.CFrame.RightVector end
+        flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            local moveDirection = Vector3.zero
+            local input = game:GetService("UserInputService")
 
-            humanoidRootPart.Velocity = direction * flySpeed
+            if input:IsKeyDown(Enum.KeyCode.Z) then
+                moveDirection = moveDirection + camera.CFrame.LookVector
+            end
+            if input:IsKeyDown(Enum.KeyCode.S) then
+                moveDirection = moveDirection - camera.CFrame.LookVector
+            end
+            if input:IsKeyDown(Enum.KeyCode.Q) then
+                moveDirection = moveDirection - camera.CFrame.RightVector
+            end
+            if input:IsKeyDown(Enum.KeyCode.D) then
+                moveDirection = moveDirection + camera.CFrame.RightVector
+            end
+            if input:IsKeyDown(Enum.KeyCode.Space) then
+                moveDirection = moveDirection + Vector3.new(0, 1, 0)
+            end
+            if input:IsKeyDown(Enum.KeyCode.LeftShift) then
+                moveDirection = moveDirection - Vector3.new(0, 1, 0)
+            end
+
+            moveDirection = moveDirection.Unit * flySpeed
+            bodyVelocity.Velocity = moveDirection
+            bodyGyro.CFrame = camera.CFrame
         end)
 
         Rayfield:Notify({
@@ -61,8 +83,9 @@ local function toggleFly()
         })
     else
         flying = false
-        if connection then connection:Disconnect() end
-        humanoidRootPart.Velocity = Vector3.zero
+        if flyConnection then flyConnection:Disconnect() end
+        humanoidRootPart:FindFirstChildOfClass("BodyGyro"):Destroy()
+        humanoidRootPart:FindFirstChildOfClass("BodyVelocity"):Destroy()
 
         Rayfield:Notify({
             Title = "Fly Désactivé",
@@ -72,26 +95,35 @@ local function toggleFly()
     end
 end
 
--- Fonction pour Noclip
+-- Fonction pour activer/désactiver Noclip
 local function toggleNoclip()
     if not noclipping then
         noclipping = true
-        game:GetService("RunService").Stepped:Connect(function()
+
+        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
             if noclipping then
-                humanoidRootPart.CanCollide = false
-            else
-                humanoidRootPart.CanCollide = true
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") and part.CanCollide then
+                        part.CanCollide = false
+                    end
+                end
             end
         end)
 
         Rayfield:Notify({
             Title = "Noclip Activé",
-            Content = "Vous pouvez traverser les murs.",
+            Content = "Vous pouvez maintenant traverser les murs.",
             Duration = 5
         })
     else
         noclipping = false
-        humanoidRootPart.CanCollide = true
+        if noclipConnection then noclipConnection:Disconnect() end
+
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true
+            end
+        end
 
         Rayfield:Notify({
             Title = "Noclip Désactivé",
