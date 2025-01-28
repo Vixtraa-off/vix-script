@@ -108,9 +108,19 @@ Tab:CreateButton({
     end,
 })
 -- Gestion du Respawn
+local resetCooldown = false  -- Variable pour gérer le cooldown
 Tab:CreateButton({
     Name = "Reset Personnage",
     Callback = function()
+        if resetCooldown then
+            Rayfield:Notify({
+                Title = "Cooldown Actif",
+                Content = "Le cooldown de réinitialisation est en cours.",
+                Duration = 5,
+            })
+            return
+        end
+
         local player = game.Players.LocalPlayer
         local character = player.Character
 
@@ -121,6 +131,10 @@ Tab:CreateButton({
                 Content = "Votre personnage a été réinitialisé avec succès.",
                 Duration = 5,
             })
+
+            resetCooldown = true  -- Active le cooldown
+            wait(5)  -- Attendre un délai de 5 secondes avant de pouvoir réinitialiser à nouveau
+            resetCooldown = false  -- Réinitialiser la variable après le cooldown
         else
             Rayfield:Notify({
                 Title = "Erreur",
