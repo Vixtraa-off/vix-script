@@ -1,6 +1,6 @@
 -- Définir les clés valides
 local validKeys = {
-    "vixscript"
+    "vixscript" -- Remplacez par votre propre clé
 }
 
 -- Fonction pour vérifier la clé
@@ -74,32 +74,71 @@ function loadMainMenu()
 
     local Tab = Window:CreateTab("Utilitaires", 4483362458)
 
-    -- Ajoutez vos fonctionnalités ici (Fly, Noclip, etc.)
     local flying = false
     local noclipping = false
 
+    -- Fly activé/désactivé
     Tab:CreateButton({
         Name = "Activer/Désactiver Fly",
         Callback = function()
-            -- Votre code Fly ici
             flying = not flying
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+
             if flying then
                 Rayfield:Notify({ Title = "Fly Activé", Content = "Vous volez maintenant.", Duration = 5 })
+                local bodyVelocity = Instance.new("BodyVelocity")
+                bodyVelocity.Name = "FlyVelocity"
+                bodyVelocity.MaxForce = Vector3.new(1e4, 1e4, 1e4)
+                bodyVelocity.Parent = character.PrimaryPart
+
+                game:GetService("RunService").Stepped:Connect(function()
+                    if flying then
+                        bodyVelocity.Velocity = Vector3.new(
+                            (player.Input.MoveDirection.X) * 50,
+                            (humanoid.Jump and 50 or 0),
+                            (player.Input.MoveDirection.Z) * 50
+                        )
+                    else
+                        bodyVelocity:Destroy()
+                    end
+                end)
             else
                 Rayfield:Notify({ Title = "Fly Désactivé", Content = "Vous avez arrêté de voler.", Duration = 5 })
+                if character.PrimaryPart:FindFirstChild("FlyVelocity") then
+                    character.PrimaryPart.FlyVelocity:Destroy()
+                end
             end
         end
     })
 
+    -- Noclip activé/désactivé
     Tab:CreateButton({
         Name = "Activer/Désactiver Noclip",
         Callback = function()
-            -- Votre code Noclip ici
             noclipping = not noclipping
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+
             if noclipping then
                 Rayfield:Notify({ Title = "Noclip Activé", Content = "Vous pouvez traverser les murs.", Duration = 5 })
+                game:GetService("RunService").Stepped:Connect(function()
+                    if noclipping then
+                        for _, part in pairs(character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                            end
+                        end
+                    end
+                end)
             else
                 Rayfield:Notify({ Title = "Noclip Désactivé", Content = "Vous ne pouvez plus traverser les murs.", Duration = 5 })
+                for _, part in pairs(character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
             end
         end
     })
