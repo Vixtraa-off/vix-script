@@ -1,153 +1,106 @@
+-- Définir les clés valides
+local validKeys = {
+    "vixscript"
+}
+
+-- Fonction pour vérifier la clé
+local function isKeyValid(inputKey)
+    for _, key in pairs(validKeys) do
+        if inputKey == key then
+            return true
+        end
+    end
+    return false
+end
+
 -- Charger Rayfield
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Créer la fenêtre principale
-local Window = Rayfield:CreateWindow({
-    Name = "Vix'Script - Menu",
+-- Créer une fenêtre pour le Key System
+local KeyWindow = Rayfield:CreateWindow({
+    Name = "Système de Clé - Accès Menu",
     Icon = 0,
-    LoadingTitle = "Chargement du Menu...",
+    LoadingTitle = "Chargement du Système de Clé",
     LoadingSubtitle = "Par vixtraa.",
     Theme = "Default",
-    DisableRayfieldPrompts = false,
     ConfigurationSaving = {
-        Enabled = true,
-        FolderName = nil,
-        FileName = "Utilitaires"
-    },
-    Discord = {
-        Enabled = false,
-        Invite = "",
-        RememberJoins = true
+        Enabled = false
     },
     KeySystem = false
 })
 
--- Créer l'onglet Utilitaires
-local Tab = Window:CreateTab("Utilitaires", 4483362458)
+-- Onglet pour entrer la clé
+local KeyTab = KeyWindow:CreateTab("Entrer la Clé", 4483362458)
 
--- Variables globales
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local flying = false
-local noclipping = false
-local flyConnection, noclipConnection
-local flySpeed = 50 -- Ajustez la vitesse de vol
+KeyTab:CreateInput({
+    Name = "Clé d'Accès",
+    PlaceholderText = "Entrez votre clé ici",
+    RemoveTextAfterFocusLost = true,
+    Callback = function(inputKey)
+        if isKeyValid(inputKey) then
+            Rayfield:Notify({
+                Title = "Accès Accordé",
+                Content = "Clé correcte, accès au menu autorisé.",
+                Duration = 5
+            })
 
--- Fonction pour Fly
-local function toggleFly()
-    if not flying then
-        flying = true
-
-        -- Ajouter des forces de mouvement pour Fly
-        local bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
-        bodyGyro.MaxTorque = Vector3.new(9e4, 9e4, 9e4)
-        bodyGyro.P = 9e4
-        bodyGyro.CFrame = humanoidRootPart.CFrame
-
-        local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
-        bodyVelocity.MaxForce = Vector3.new(9e4, 9e4, 9e4)
-        bodyVelocity.Velocity = Vector3.zero
-
-        -- Gérer le déplacement avec les touches
-        flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-            local direction = Vector3.zero
-            local input = game:GetService("UserInputService")
-
-            if input:IsKeyDown(Enum.KeyCode.Z) then
-                direction += workspace.CurrentCamera.CFrame.LookVector
-            end
-            if input:IsKeyDown(Enum.KeyCode.S) then
-                direction -= workspace.CurrentCamera.CFrame.LookVector
-            end
-            if input:IsKeyDown(Enum.KeyCode.Q) then
-                direction -= workspace.CurrentCamera.CFrame.RightVector
-            end
-            if input:IsKeyDown(Enum.KeyCode.D) then
-                direction += workspace.CurrentCamera.CFrame.RightVector
-            end
-            if input:IsKeyDown(Enum.KeyCode.Space) then
-                direction += Vector3.new(0, 1, 0)
-            end
-            if input:IsKeyDown(Enum.KeyCode.LeftShift) then
-                direction -= Vector3.new(0, 1, 0)
-            end
-
-            -- Appliquer la vitesse et l'orientation
-            direction = direction.Unit * flySpeed
-            bodyVelocity.Velocity = direction
-            bodyGyro.CFrame = workspace.CurrentCamera.CFrame
-        end)
-
-        Rayfield:Notify({
-            Title = "Fly Activé",
-            Content = "Vous pouvez maintenant voler librement.",
-            Duration = 5
-        })
-    else
-        flying = false
-        if flyConnection then flyConnection:Disconnect() end
-        humanoidRootPart:FindFirstChildOfClass("BodyGyro"):Destroy()
-        humanoidRootPart:FindFirstChildOfClass("BodyVelocity"):Destroy()
-
-        Rayfield:Notify({
-            Title = "Fly Désactivé",
-            Content = "Le vol a été désactivé.",
-            Duration = 5
-        })
+            KeyWindow:Destroy() -- Ferme la fenêtre de clé
+            loadMainMenu() -- Charge le menu principal
+        else
+            Rayfield:Notify({
+                Title = "Accès Refusé",
+                Content = "Clé incorrecte, veuillez réessayer.",
+                Duration = 5
+            })
+        end
     end
-end
+})
 
--- Fonction pour Noclip
-local function toggleNoclip()
-    if not noclipping then
-        noclipping = true
+-- Fonction pour charger le menu principal après validation
+function loadMainMenu()
+    local Window = Rayfield:CreateWindow({
+        Name = "Vix'Script - Menu",
+        Icon = 0,
+        LoadingTitle = "Chargement du Menu...",
+        LoadingSubtitle = "Par vixtraa.",
+        Theme = "Default",
+        ConfigurationSaving = {
+            Enabled = true,
+            FolderName = "vixscript",
+            FileName = "Utilities"
+        },
+        KeySystem = false
+    })
 
-        -- Désactiver les collisions des parties du personnage
-        noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            for _, part in pairs(character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
-            end
-        end)
+    local Tab = Window:CreateTab("Utilitaires", 4483362458)
 
-        Rayfield:Notify({
-            Title = "Noclip Activé",
-            Content = "Vous pouvez maintenant traverser les murs.",
-            Duration = 5
-        })
-    else
-        noclipping = false
-        if noclipConnection then noclipConnection:Disconnect() end
+    -- Ajoutez vos fonctionnalités ici (Fly, Noclip, etc.)
+    local flying = false
+    local noclipping = false
 
-        -- Réactiver les collisions des parties du personnage
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = true
+    Tab:CreateButton({
+        Name = "Activer/Désactiver Fly",
+        Callback = function()
+            -- Votre code Fly ici
+            flying = not flying
+            if flying then
+                Rayfield:Notify({ Title = "Fly Activé", Content = "Vous volez maintenant.", Duration = 5 })
+            else
+                Rayfield:Notify({ Title = "Fly Désactivé", Content = "Vous avez arrêté de voler.", Duration = 5 })
             end
         end
+    })
 
-        Rayfield:Notify({
-            Title = "Noclip Désactivé",
-            Content = "Vous ne pouvez plus traverser les murs.",
-            Duration = 5
-        })
-    end
+    Tab:CreateButton({
+        Name = "Activer/Désactiver Noclip",
+        Callback = function()
+            -- Votre code Noclip ici
+            noclipping = not noclipping
+            if noclipping then
+                Rayfield:Notify({ Title = "Noclip Activé", Content = "Vous pouvez traverser les murs.", Duration = 5 })
+            else
+                Rayfield:Notify({ Title = "Noclip Désactivé", Content = "Vous ne pouvez plus traverser les murs.", Duration = 5 })
+            end
+        end
+    })
 end
-
--- Bouton pour Fly
-Tab:CreateButton({
-    Name = "Activer/Désactiver Fly",
-    Callback = function()
-        toggleFly()
-    end
-})
-
--- Bouton pour Noclip
-Tab:CreateButton({
-    Name = "Activer/Désactiver Noclip",
-    Callback = function()
-        toggleNoclip()
-    end
-})
