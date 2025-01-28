@@ -63,7 +63,7 @@ function loadMainMenu()
         Icon = 0,
         LoadingTitle = "Chargement du Menu...",
         LoadingSubtitle = "Par vixtraa.",
-        Theme = "Amber Glow",
+        Theme = "Default",
         ConfigurationSaving = {
             Enabled = true,
             FolderName = "vixscript",
