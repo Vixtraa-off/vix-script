@@ -107,6 +107,29 @@ Tab:CreateButton({
         end
     end,
 })
+-- Gestion du Respawn
+Tab:CreateButton({
+    Name = "Reset Personnage",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character
+
+        if character then
+            character:BreakJoints() -- Détruit les joints du personnage, ce qui provoque un respawn
+            Rayfield:Notify({
+                Title = "Personnage Réinitialisé",
+                Content = "Votre personnage a été réinitialisé avec succès.",
+                Duration = 5,
+            })
+        else
+            Rayfield:Notify({
+                Title = "Erreur",
+                Content = "Impossible de réinitialiser le personnage.",
+                Duration = 5,
+            })
+        end
+    end,
+})
 
 -- Ajout d'autres fonctionnalités
 Tab:CreateButton({
