@@ -7,7 +7,7 @@ local Window = Rayfield:CreateWindow({
     Icon = 0, -- Pas d'icône, remplacez par un ID si nécessaire
     LoadingTitle = "Chargement du Menu...",
     LoadingSubtitle = "Par Vixtraa.",
-    Theme = "AmberGlow",
+    Theme = "Default",
     KeySystem = true, -- Activation du système de clé
     KeySettings = {
         Title = "Vix'Script KeySystem",
@@ -55,31 +55,61 @@ Tab:CreateButton({
 
 -- Gestion du Fly
 local flying = false
+local bodyVelocity = nil
+local bodyGyro = nil
+
 Tab:CreateButton({
     Name = "Activer/Désactiver Fly",
     Callback = function()
-        flying = not flying
         local player = game.Players.LocalPlayer
         local character = player.Character or player.CharacterAdded:Wait()
         local humanoid = character:WaitForChild("Humanoid")
-        local bodyVelocity = Instance.new("BodyVelocity")
+        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
         if flying then
-            bodyVelocity.Velocity = Vector3.new(0, 50, 0) -- Monte initialement
-            bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-            bodyVelocity.Parent = character:WaitForChild("HumanoidRootPart")
+            -- Désactiver le vol
+            if bodyVelocity then
+                bodyVelocity:Destroy()
+                bodyVelocity = nil
+            end
+            if bodyGyro then
+                bodyGyro:Destroy()
+                bodyGyro = nil
+            end
+            flying = false
             Rayfield:Notify({
-                Title = "Fly Activé",
-                Content = "Vous volez maintenant. Utilisez ZQSD pour vous déplacer.",
+                Title = "Fly Désactivé",
+                Content = "Le vol a été désactivé. Vous êtes revenu au sol.",
                 Duration = 5,
             })
         else
-            if bodyVelocity then
-                bodyVelocity:Destroy()
-            end
+            -- Activer le vol
+            flying = true
+
+            -- Créer un BodyVelocity pour permettre le vol
+            bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+            bodyVelocity.Velocity = Vector3.new(0, 50, 0) -- Monte initialement
+            bodyVelocity.Parent = humanoidRootPart
+
+            -- Créer un BodyGyro pour éviter que le personnage ne bascule en l'air
+            bodyGyro = Instance.new("BodyGyro")
+            bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+            bodyGyro.CFrame = humanoidRootPart.CFrame
+            bodyGyro.Parent = humanoidRootPart
+
+            -- Mettre à jour la vitesse et la direction pendant le vol
+            game:GetService("RunService").Heartbeat:Connect(function()
+                if flying then
+                    -- Maintenir le personnage dans les airs et l'empêcher de tomber
+                    bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * 50 -- Déplacement avant/arrière
+                    bodyGyro.CFrame = humanoidRootPart.CFrame -- Maintenir l'orientation
+                end
+            end)
+
             Rayfield:Notify({
-                Title = "Fly Désactivé",
-                Content = "Vous avez arrêté de voler.",
+                Title = "Fly Activé",
+                Content = "Vous volez maintenant. Utilisez ZQSD pour vous déplacer.",
                 Duration = 5,
             })
         end
