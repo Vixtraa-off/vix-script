@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Créer la fenêtre principale avec KeySystem activé
 local Window = Rayfield:CreateWindow({
-    Name = "Vix'Script - Menu avec KeySystem",
+    Name = "Vix'Script - Menu",
     Icon = 0, -- Pas d'icône, remplacez par un ID si nécessaire
     LoadingTitle = "Chargement du Menu...",
     LoadingSubtitle = "Par Vixtraa.",
@@ -21,7 +21,7 @@ local Window = Rayfield:CreateWindow({
             [1] = {
                 Text = "Cliquez ici pour copier le lien de la clé",
                 OnPress = function()
-                    setclipboard("https://votre-site-ou-lien-cle.com") -- Remplacez par le lien réel pour obtenir une clé
+                    setclipboard("https://discord.gg/w92d9hnT2p") -- Remplacez par le lien réel pour obtenir une clé
                     Rayfield:Notify({
                         Title = "Lien Copié",
                         Content = "Le lien vers la clé a été copié dans votre presse-papier.",
