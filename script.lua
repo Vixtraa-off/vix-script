@@ -3,21 +3,21 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Créer la fenêtre principale
 local Window = Rayfield:CreateWindow({
-    Name = "Menu Éducatif - Utilitaires",
+    Name = "Vix'Script - Menu",
     Icon = 0,
     LoadingTitle = "Chargement du Menu...",
-    LoadingSubtitle = "Par Sirius",
+    LoadingSubtitle = "Par vixtraa.",
     Theme = "Default",
     DisableRayfieldPrompts = false,
     ConfigurationSaving = {
-       Enabled = true,
-       FolderName = nil,
-       FileName = "Utilitaires"
+        Enabled = true,
+        FolderName = nil,
+        FileName = "Utilitaires"
     },
     Discord = {
-       Enabled = false,
-       Invite = "",
-       RememberJoins = true
+        Enabled = false,
+        Invite = "",
+        RememberJoins = true
     },
     KeySystem = false
 })
@@ -25,60 +25,63 @@ local Window = Rayfield:CreateWindow({
 -- Créer l'onglet Utilitaires
 local Tab = Window:CreateTab("Utilitaires", 4483362458)
 
--- Variables pour Fly et Noclip
-local flying = false
-local noclipping = false
+-- Variables globales
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local camera = workspace.CurrentCamera
-local flySpeed = 50
-local flyConnection
-local noclipConnection
+local flying = false
+local noclipping = false
+local flyConnection, noclipConnection
+local flySpeed = 50 -- Ajustez la vitesse de vol
 
--- Fonction pour activer/désactiver Fly
+-- Fonction pour Fly
 local function toggleFly()
     if not flying then
         flying = true
 
+        -- Ajouter des forces de mouvement pour Fly
         local bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
-        local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
         bodyGyro.MaxTorque = Vector3.new(9e4, 9e4, 9e4)
+        bodyGyro.P = 9e4
         bodyGyro.CFrame = humanoidRootPart.CFrame
+
+        local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
         bodyVelocity.MaxForce = Vector3.new(9e4, 9e4, 9e4)
         bodyVelocity.Velocity = Vector3.zero
 
+        -- Gérer le déplacement avec les touches
         flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-            local moveDirection = Vector3.zero
+            local direction = Vector3.zero
             local input = game:GetService("UserInputService")
 
             if input:IsKeyDown(Enum.KeyCode.Z) then
-                moveDirection = moveDirection + camera.CFrame.LookVector
+                direction += workspace.CurrentCamera.CFrame.LookVector
             end
             if input:IsKeyDown(Enum.KeyCode.S) then
-                moveDirection = moveDirection - camera.CFrame.LookVector
+                direction -= workspace.CurrentCamera.CFrame.LookVector
             end
             if input:IsKeyDown(Enum.KeyCode.Q) then
-                moveDirection = moveDirection - camera.CFrame.RightVector
+                direction -= workspace.CurrentCamera.CFrame.RightVector
             end
             if input:IsKeyDown(Enum.KeyCode.D) then
-                moveDirection = moveDirection + camera.CFrame.RightVector
+                direction += workspace.CurrentCamera.CFrame.RightVector
             end
             if input:IsKeyDown(Enum.KeyCode.Space) then
-                moveDirection = moveDirection + Vector3.new(0, 1, 0)
+                direction += Vector3.new(0, 1, 0)
             end
             if input:IsKeyDown(Enum.KeyCode.LeftShift) then
-                moveDirection = moveDirection - Vector3.new(0, 1, 0)
+                direction -= Vector3.new(0, 1, 0)
             end
 
-            moveDirection = moveDirection.Unit * flySpeed
-            bodyVelocity.Velocity = moveDirection
-            bodyGyro.CFrame = camera.CFrame
+            -- Appliquer la vitesse et l'orientation
+            direction = direction.Unit * flySpeed
+            bodyVelocity.Velocity = direction
+            bodyGyro.CFrame = workspace.CurrentCamera.CFrame
         end)
 
         Rayfield:Notify({
             Title = "Fly Activé",
-            Content = "Vous pouvez maintenant voler.",
+            Content = "Vous pouvez maintenant voler librement.",
             Duration = 5
         })
     else
@@ -95,17 +98,16 @@ local function toggleFly()
     end
 end
 
--- Fonction pour activer/désactiver Noclip
+-- Fonction pour Noclip
 local function toggleNoclip()
     if not noclipping then
         noclipping = true
 
+        -- Désactiver les collisions des parties du personnage
         noclipConnection = game:GetService("RunService").Stepped:Connect(function()
-            if noclipping then
-                for _, part in pairs(character:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide then
-                        part.CanCollide = false
-                    end
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
                 end
             end
         end)
@@ -119,6 +121,7 @@ local function toggleNoclip()
         noclipping = false
         if noclipConnection then noclipConnection:Disconnect() end
 
+        -- Réactiver les collisions des parties du personnage
         for _, part in pairs(character:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = true
