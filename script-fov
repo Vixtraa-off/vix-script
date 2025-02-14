@@ -1,0 +1,125 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Vix'Script - FOV",
+   Icon = 0,
+   LoadingTitle = "Rayfield Interface Suite",
+   LoadingSubtitle = "by vixtraa.",
+   Theme = "Default", -- Thème par défaut
+
+   KeySystem = true, -- Activation du système de clé
+   KeySettings = {
+      Title = "Vix'Script KeySystem",
+      Subtitle = "Accès Sécurisé",
+      Note = "Rejoignez le Discord (discord.gg/vixscript)",
+      FileName = "VixScriptKey",
+      SaveKey = false, -- N'enregistre pas la clé localement
+      GrabKeyFromSite = false, -- Changez pour true si vous utilisez un fichier en ligne
+      Key = {"vixscript", "backupkey"}, -- Liste des clés acceptées
+      Actions = {
+         [1] = {
+            Text = "Cliquez ici pour copier le lien de la clé",
+            OnPress = function()
+               setclipboard("https://discord.gg/w92d9hnT2p") -- Remplacez par le lien réel pour obtenir une clé
+               Rayfield:Notify({
+                  Title = "Lien Copié",
+                  Content = "Le lien vers la clé a été copié dans votre presse-papier.",
+                  Duration = 5,
+               })
+            end,
+         },
+      },
+   },
+
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "RobloxScripts",
+      FileName = "FOVChanger"
+   },
+
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   }
+})
+
+-- Créer un onglet "Settings"
+local TabSettings = Window:CreateTab("Settings", 4483362458)
+
+-- Ajouter une section d'information avec titre et description
+local SectionInfo = TabSettings:CreateSection("Informations", {
+   Description = "Ici vous pouvez ajuster le thème de l'interface et d'autres paramètres."
+})
+
+-- Ajouter une option pour changer le thème
+local Dropdown = TabSettings:CreateDropdown({
+   Name = "Choisir un thème",
+   Options = {"Default", "AmberGlow", "Amethyst", "Bloom", "DarkBlue", "Green", "Light", "Ocean", "Serenity"},
+   CurrentOption = "Default", -- Thème initial
+   Flag = "ThemeDropdown",
+   Callback = function(SelectedTheme)
+      -- Appliquer le thème sélectionné
+      Window:SetTheme(SelectedTheme)
+      Rayfield:Notify({
+         Title = "Thème modifié",
+         Content = "Le thème a été changé en " .. SelectedTheme,
+         Duration = 5,
+      })
+   end
+})
+
+-- Créer l'onglet "Camera Settings"
+local TabCamera = Window:CreateTab("Camera Settings", 4483362458)
+local Section = TabCamera:CreateSection("FOV Adjustment")
+
+-- Créer un champ de texte pour l'entrée de la FOV
+local Input = TabCamera:CreateInput({
+   Name = "Adjust FOV",
+   CurrentValue = "70", -- Valeur de FOV par défaut
+   PlaceholderText = "Enter FOV Value",
+   RemoveTextAfterFocusLost = false,
+   Flag = "FOVInput",
+   Callback = function(Text)
+      -- Si l'utilisateur entre un texte, on le convertit en nombre et on modifie la FOV
+      local FOVValue = tonumber(Text)
+      if FOVValue and FOVValue >= 30 and FOVValue <= 120 then
+         game.Workspace.CurrentCamera.FieldOfView = FOVValue
+         Rayfield:Notify({
+            Title = "FOV Changed",
+            Content = "La FOV a été changée à " .. FOVValue .. "°",
+            Duration = 5,
+         })
+      else
+         Rayfield:Notify({
+            Title = "Erreur",
+            Content = "Veuillez entrer une valeur entre 30 et 120 pour la FOV.",
+            Duration = 5,
+         })
+      end
+   end,
+})
+
+local Button = TabCamera:CreateButton({
+   Name = "Reset FOV",
+   Callback = function()
+      game.Workspace.CurrentCamera.FieldOfView = 70
+      Input:Set("70") -- Remettre la valeur de l'entrée à 70
+   end
+})
+
+-- Afficher une notification après le chargement
+Rayfield:Notify({
+   Title = "FOV Changer Loaded",
+   Content = "Use the input box to adjust your camera's FOV!",
+   Duration = 5,
+   Image = 4483362458,
+   Actions = {
+      Ignore = {
+         Name = "Okay",
+         Callback = function()
+            print("Notification closed")
+         end
+      }
+   }
+})
