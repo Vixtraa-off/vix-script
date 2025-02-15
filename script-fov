@@ -82,24 +82,37 @@ local Button = TabCamera:CreateButton({
    end
 })
 
--- Onglet Settings
-local TabSettings = Window:CreateTab("Settings", "settings")
-local SectionInfo = TabSettings:CreateSection("Personnalisation du Thème")
+-- Onglet Speed Settings
+local TabSpeed = Window:CreateTab("Speed Settings", "run")
+local SectionSpeed = TabSpeed:CreateSection("Vitesse du Joueur")
 
--- Dropdown pour choisir un thème
-local ThemeDropdown = TabSettings:CreateDropdown({
-   Name = "Choisir un thème",
-   Options = {
-      "Default", "AmberGlow", "Amethyst", "Bloom", "DarkBlue",
-      "Green", "Light", "Ocean", "Serenity"
-   },
-   CurrentOption = "Default",
-   Flag = "ThemeDropdown",
-   Callback = function(selectedTheme)
-      Window:SetTheme(selectedTheme)
+local defaultSpeed = 16
+
+local SpeedSlider = TabSpeed:CreateSlider({
+   Name = "Ajuster la Vitesse",
+   Min = 16,
+   Max = 100,
+   CurrentValue = 16,
+   Increment = 1,
+   Flag = "SpeedSlider",
+   Callback = function(value)
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
       Rayfield:Notify({
-         Title = "Thème modifié",
-         Content = "Le thème a été changé en " .. selectedTheme .. ".",
+         Title = "Vitesse Changée",
+         Content = "La vitesse a été changée à " .. value .. ".",
+         Duration = 5,
+      })
+   end
+})
+
+local ResetSpeedButton = TabSpeed:CreateButton({
+   Name = "Réinitialiser la Vitesse",
+   Callback = function()
+      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = defaultSpeed
+      SpeedSlider:Set(defaultSpeed)
+      Rayfield:Notify({
+         Title = "Vitesse Réinitialisée",
+         Content = "La vitesse a été réinitialisée à sa valeur par défaut.",
          Duration = 5,
       })
    end
