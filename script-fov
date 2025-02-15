@@ -5,7 +5,7 @@ local Window = Rayfield:CreateWindow({
    Icon = 0,
    LoadingTitle = "Rayfield Interface Suite",
    LoadingSubtitle = "by vixtraa.",
-   Theme = "Ocean",
+   Theme = "Default",
 
    KeySystem = true,
    KeySettings = {
@@ -85,6 +85,25 @@ local Button = TabCamera:CreateButton({
 -- Onglet Settings
 local TabSettings = Window:CreateTab("Settings", "settings")
 local SectionInfo = TabSettings:CreateSection("Personnalisation du Thème")
+
+-- Dropdown pour choisir un thème
+local ThemeDropdown = TabSettings:CreateDropdown({
+   Name = "Choisir un thème",
+   Options = {
+      "Default", "AmberGlow", "Amethyst", "Bloom", "DarkBlue",
+      "Green", "Light", "Ocean", "Serenity"
+   },
+   CurrentOption = "Default",
+   Flag = "ThemeDropdown",
+   Callback = function(selectedTheme)
+      Window:SetTheme(selectedTheme)
+      Rayfield:Notify({
+         Title = "Thème modifié",
+         Content = "Le thème a été changé en " .. selectedTheme .. ".",
+         Duration = 5,
+      })
+   end
+})
 
 Rayfield:Notify({
    Title = "FOV Changer Chargé",
