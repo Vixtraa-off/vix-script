@@ -83,7 +83,7 @@ local Button = TabCamera:CreateButton({
 })
 
 -- Onglet Speed Settings
-local TabSpeed = Window:CreateTab("Speed Settings", "rabbit")
+local TabSpeed = Window:CreateTab("Speed Settings", "run")
 local SectionSpeed = TabSpeed:CreateSection("Vitesse du Joueur")
 
 local defaultSpeed = 16
