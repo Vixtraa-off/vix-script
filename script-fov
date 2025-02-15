@@ -15,7 +15,7 @@ local Window = Rayfield:CreateWindow({
       FileName = "VixScriptKey",
       SaveKey = false,
       GrabKeyFromSite = false,
-      Key = {"vixscript", "backupkey", "s"},
+      Key = {"vixscript", "backupkey"},
       Actions = {
          [1] = {
             Text = "Cliquez ici pour copier le lien de la clé",
@@ -45,7 +45,7 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Onglet Camera Settings
-local TabCamera = Window:CreateTab("Camera", "camera")
+local TabCamera = Window:CreateTab("Camera Settings", "camera")
 local Section = TabCamera:CreateSection("FOV Adjustment")
 
 -- Champ d'entrée pour ajuster la FOV
@@ -83,8 +83,8 @@ local Button = TabCamera:CreateButton({
 })
 
 -- Onglet Settings
-local Tab = Window:CreateTab("Settings", "settings")
-local Section = Tab:CreateSection("Settings")
+local TabSettings = Window:CreateTab("Settings", "settings")
+local SectionInfo = TabSettings:CreateSection("Personnalisation du Thème")
 
 Rayfield:Notify({
    Title = "FOV Changer Chargé",
