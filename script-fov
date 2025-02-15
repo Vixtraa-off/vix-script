@@ -45,7 +45,7 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Onglet Camera Settings
-local Tab = Window:CreateTab("Camera", "camera")
+local TabCamera = Window:CreateTab("Camera", "camera")
 local Section = TabCamera:CreateSection("FOV Adjustment")
 
 -- Champ d'entrée pour ajuster la FOV
