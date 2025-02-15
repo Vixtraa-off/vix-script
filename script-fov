@@ -5,22 +5,22 @@ local Window = Rayfield:CreateWindow({
    Icon = 0,
    LoadingTitle = "Rayfield Interface Suite",
    LoadingSubtitle = "by vixtraa.",
-   Theme = "Default", -- Thème par défaut
+   Theme = "Default",
 
-   KeySystem = true, -- Activation du système de clé
+   KeySystem = true,
    KeySettings = {
       Title = "Vix'Script KeySystem",
       Subtitle = "Accès Sécurisé",
       Note = "Rejoignez le Discord (discord.gg/vixscript)",
       FileName = "VixScriptKey",
-      SaveKey = false, -- N'enregistre pas la clé localement
-      GrabKeyFromSite = false, -- Changez pour true si vous utilisez un fichier en ligne
-      Key = {"vixscript", "backupkey"}, -- Liste des clés acceptées
+      SaveKey = false,
+      GrabKeyFromSite = false,
+      Key = {"vixscript", "backupkey"},
       Actions = {
          [1] = {
             Text = "Cliquez ici pour copier le lien de la clé",
             OnPress = function()
-               setclipboard("https://discord.gg/w92d9hnT2p") -- Remplacez par le lien réel pour obtenir une clé
+               setclipboard("https://discord.gg/w92d9hnT2p")
                Rayfield:Notify({
                   Title = "Lien Copié",
                   Content = "Le lien vers la clé a été copié dans votre presse-papier.",
@@ -44,22 +44,17 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- Créer un onglet "Settings"
+-- Onglet Settings
 local TabSettings = Window:CreateTab("Settings", 4483362458)
+local SectionInfo = TabSettings:CreateSection("Personnalisation du Thème")
 
--- Ajouter une section d'information avec titre et description
-local SectionInfo = TabSettings:CreateSection("Informations", {
-   Description = "Ici vous pouvez ajuster le thème de l'interface et d'autres paramètres."
-})
-
--- Ajouter une option pour changer le thème
+-- Dropdown pour choisir un thème prédéfini
 local Dropdown = TabSettings:CreateDropdown({
    Name = "Choisir un thème",
    Options = {"Default", "AmberGlow", "Amethyst", "Bloom", "DarkBlue", "Green", "Light", "Ocean", "Serenity"},
-   CurrentOption = "Default", -- Thème initial
+   CurrentOption = "Default",
    Flag = "ThemeDropdown",
    Callback = function(SelectedTheme)
-      -- Appliquer le thème sélectionné
       Window:SetTheme(SelectedTheme)
       Rayfield:Notify({
          Title = "Thème modifié",
@@ -69,31 +64,30 @@ local Dropdown = TabSettings:CreateDropdown({
    end
 })
 
--- Créer l'onglet "Camera Settings"
+-- Onglet Camera Settings
 local TabCamera = Window:CreateTab("Camera Settings", 4483362458)
 local Section = TabCamera:CreateSection("FOV Adjustment")
 
--- Créer un champ de texte pour l'entrée de la FOV
+-- Champ d'entrée pour ajuster la FOV
 local Input = TabCamera:CreateInput({
-   Name = "Adjust FOV",
-   CurrentValue = "70", -- Valeur de FOV par défaut
-   PlaceholderText = "Enter FOV Value",
+   Name = "Ajuster la FOV",
+   CurrentValue = "70",
+   PlaceholderText = "Entrez une valeur entre 30 et 120",
    RemoveTextAfterFocusLost = false,
    Flag = "FOVInput",
    Callback = function(Text)
-      -- Si l'utilisateur entre un texte, on le convertit en nombre et on modifie la FOV
       local FOVValue = tonumber(Text)
       if FOVValue and FOVValue >= 30 and FOVValue <= 120 then
          game.Workspace.CurrentCamera.FieldOfView = FOVValue
          Rayfield:Notify({
-            Title = "FOV Changed",
+            Title = "FOV Changée",
             Content = "La FOV a été changée à " .. FOVValue .. "°",
             Duration = 5,
          })
       else
          Rayfield:Notify({
             Title = "Erreur",
-            Content = "Veuillez entrer une valeur entre 30 et 120 pour la FOV.",
+            Content = "Valeur incorrecte. Veuillez entrer un nombre entre 30 et 120.",
             Duration = 5,
          })
       end
@@ -101,25 +95,15 @@ local Input = TabCamera:CreateInput({
 })
 
 local Button = TabCamera:CreateButton({
-   Name = "Reset FOV",
+   Name = "Réinitialiser la FOV",
    Callback = function()
       game.Workspace.CurrentCamera.FieldOfView = 70
-      Input:Set("70") -- Remettre la valeur de l'entrée à 70
+      Input:Set("70")
    end
 })
 
--- Afficher une notification après le chargement
 Rayfield:Notify({
-   Title = "FOV Changer Loaded",
-   Content = "Use the input box to adjust your camera's FOV!",
+   Title = "FOV Changer Chargé",
+   Content = "Utilisez les paramètres pour personnaliser votre expérience.",
    Duration = 5,
-   Image = 4483362458,
-   Actions = {
-      Ignore = {
-         Name = "Okay",
-         Callback = function()
-            print("Notification closed")
-         end
-      }
-   }
 })
