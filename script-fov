@@ -83,7 +83,7 @@ local Button = TabCamera:CreateButton({
 })
 
 -- Bouton Bypass VC
-local TabBypass = Window:CreateTab("Bypass VC", "voice")
+local TabBypass = Window:CreateTab("Bypass VC", "mic-vocal")
 local SectionBypass = TabBypass:CreateSection("Bypass Voice Chat")
 
 local BypassButton = TabBypass:CreateButton({
