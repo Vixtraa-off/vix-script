@@ -82,6 +82,23 @@ local Button = TabCamera:CreateButton({
    end
 })
 
+-- Bouton Bypass VC
+local TabBypass = Window:CreateTab("Bypass VC", "voice")
+local SectionBypass = TabBypass:CreateSection("Bypass Voice Chat")
+
+local BypassButton = TabBypass:CreateButton({
+   Name = "Bypass VC",
+   Callback = function()
+      local voiceChatService = game:GetService("VoiceChatService")
+      voiceChatService:joinVoice()
+      Rayfield:Notify({
+         Title = "Bypass VC",
+         Content = "Voice Chat activé avec succès.",
+         Duration = 5,
+      })
+   end
+})
+
 Rayfield:Notify({
    Title = "FOV Changer Chargé",
    Content = "Utilisez les paramètres pour personnaliser votre expérience.",
